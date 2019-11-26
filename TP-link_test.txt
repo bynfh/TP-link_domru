@@ -1,0 +1,353 @@
+en
+conf 
+service password-encryption 
+user name admin privilege admin secret Net52Sky
+hostname Revolutcii-50-2pod_DSH
+
+vlan 99,601-624,501-600,631-1588,96-98,3700-3799
+exit
+no interface vlan 1
+interface vlan 99
+description MGMT
+ip address 10.255.24.5 255.255.255.0
+no ipv6 enable 
+no shutdown
+exit
+
+ip route 0.0.0.0 0.0.0.0 10.255.24.254
+
+interface gi 1/0/1
+switchport general allowed vlan 601 untagged
+switchport pvid 601
+no switchport general allowed vlan 1
+interface gi 1/0/2
+switchport general allowed vlan 602 untagged
+switchport pvid 602
+no switchport general allowed vlan 1
+interface gi 1/0/3
+switchport general allowed vlan 603 untagged
+switchport pvid 603
+no switchport general allowed vlan 1
+interface gi 1/0/4
+switchport general allowed vlan 604 untagged
+switchport pvid 604
+no switchport general allowed vlan 1
+interface gi 1/0/5
+switchport general allowed vlan 605 untagged
+switchport pvid 605
+no switchport general allowed vlan 1
+interface gi 1/0/6
+switchport general allowed vlan 606 untagged
+switchport pvid 606
+no switchport general allowed vlan 1
+interface gi 1/0/7
+switchport general allowed vlan 607 untagged
+switchport pvid 607
+no switchport general allowed vlan 1
+interface gi 1/0/8
+switchport general allowed vlan 608 untagged
+switchport pvid 608
+no switchport general allowed vlan 1
+interface gi 1/0/9
+switchport general allowed vlan 609 untagged
+switchport pvid 609
+no switchport general allowed vlan 1
+interface gi 1/0/10
+switchport general allowed vlan 610 untagged
+switchport pvid 610
+no switchport general allowed vlan 1
+interface gi 1/0/11
+switchport general allowed vlan 611 untagged
+switchport pvid 611
+no switchport general allowed vlan 1
+interface gi 1/0/12
+switchport general allowed vlan 612 untagged
+switchport pvid 612
+no switchport general allowed vlan 1
+interface gi 1/0/13
+switchport general allowed vlan 613 untagged
+switchport pvid 613
+no switchport general allowed vlan 1
+interface gi 1/0/14
+switchport general allowed vlan 614 untagged
+switchport pvid 614
+no switchport general allowed vlan 1
+interface gi 1/0/15
+switchport general allowed vlan 615 untagged
+switchport pvid 615
+no switchport general allowed vlan 1
+interface gi 1/0/16
+switchport general allowed vlan 616 untagged
+switchport pvid 616
+no switchport general allowed vlan 1
+interface gi 1/0/17
+switchport general allowed vlan 617 untagged
+switchport pvid 617
+no switchport general allowed vlan 1
+interface gi 1/0/18
+switchport general allowed vlan 618 untagged
+switchport pvid 618
+no switchport general allowed vlan 1
+interface gi 1/0/19
+switchport general allowed vlan 619 untagged
+switchport pvid 619
+no switchport general allowed vlan 1
+interface gi 1/0/20
+switchport general allowed vlan 620 untagged
+switchport pvid 620
+no switchport general allowed vlan 1
+interface gi 1/0/21
+switchport general allowed vlan 621 untagged
+switchport pvid 621
+no switchport general allowed vlan 1
+interface gi 1/0/22
+switchport general allowed vlan 622 untagged
+switchport pvid 622
+no switchport general allowed vlan 1
+interface gi 1/0/23
+switchport general allowed vlan 623 untagged
+switchport pvid 623
+no switchport general allowed vlan 1
+interface gi 1/0/24
+switchport general allowed vlan 624 untagged
+switchport pvid 624
+no switchport general allowed vlan 1
+exit
+user access-control ip-based enable
+user access-control ip-based 212.33.233.40 255.255.255.248
+user access-control ip-based 109.194.154.0 255.255.255.224
+user access-control ip-based 10.2.1.0 255.255.255.0
+user access-control ip-based 212.33.233.81 255.255.255.255
+user access-control ip-based 212.33.232.102 255.255.255.255
+user access-control ip-based 212.33.232.121 255.255.255.255
+user access-control ip-based 10.255.24.254 255.255.255.255
+user access-control ip-based 212.33.232.65 255.255.255.255
+
+no ip http server
+ip ssh server
+ip ssh version v2
+no ip ssh version v1
+
+system-time ntp UTC+05:00  212.33.224.130 212.33.225.210 24
+
+logging monitor level 3
+logging buffer level 6
+logging host index 1 212.33.233.81 6
+command log
+
+loopback-detection
+loopback-detection interval 1
+loopback-detection recovery-time 300
+
+interface range gigabitEthernet 1/0/1-24
+ loopback-detection config process-mode port-based recovery-mode auto
+ loopback-detection
+exit
+
+lldp
+interface range gigabitEthernet 1/0/25-28
+  lldp med-status
+lldp management-address 10.255.24.5
+exit
+interface range gigabitEthernet 1/0/1-24
+ no lldp transmit
+exit
+
+spanning-tree
+spanning-tree mode rstp
+spanning-tree priority 32768
+interface range gigabitEthernet 1/0/1-24
+ spanning-tree
+ spanning-tree common-config portfast enable
+ spanning-tree guard loop
+ spanning-tree guard root
+ spanning-tree guard tc
+exit
+interface range gigabitEthernet 1/0/25-28
+ spanning-tree
+exit
+
+interface range gigabitEthernet 1/0/1-24
+port isolation gi-forward-list 1/0/25-28
+
+exit
+
+interface range gigabitEthernet 1/0/1-24
+ storm-control rate-mode pps
+ storm-control broadcast 20
+ storm-control multicast 20
+ storm-control exceed drop
+exit
+
+
+access-list create 1000 name MGMT
+access-list combined 1000 rule 1 permit logging disable vid 99
+
+
+access-list create 1001 name CISCO
+access-list combined 1001 rule 1 deny logging disable dmac 01:00:0c:cc:cc:cc dmask ff:ff:ff:ff:ff:fe 
+access-list combined 1001 rule 2 deny logging disable type 888e
+
+
+access-list create 1002 name DHCP_IPOE
+access-list combined 1002 rule 1  deny logging disable type 86dd
+
+
+access-list create 1003 name VOIP
+access-list combined 1003 rule 1 permit logging disable smac 00:90:8f:00:00:00 smask ff:ff:ff:00:00:00
+
+access-list combined 1003 rule 2 permit logging disable smac 00:0e:08:00:00:00 smask ff:ff:ff:00:00:00
+access-list combined 1003 rule 3 permit logging disable smac 00:02:a4:00:00:00 smask ff:ff:ff:00:00:00
+access-list combined 1003 rule 4 permit logging disable smac c4:0a:cb:00:00:00 smask ff:ff:ff:00:00:00
+
+access-list combined 1003 rule 5 permit logging disable smac c4:64:13:00:00:00 smask ff:ff:ff:00:00:00
+access-list combined 1003 rule 6 permit logging disable smac 30:e4:db:00:00:00 smask ff:ff:ff:00:00:00
+access-list combined 1003 rule 7 permit logging disable smac 88:75:56:00:00:00 smask ff:ff:ff:00:00:00
+
+access-list combined 1003 rule 8 permit logging disable smac 64:9e:f3:00:00:00 smask ff:ff:ff:00:00:00
+access-list combined 1003 rule 9 permit logging disable smac 54:78:1a:00:00:00 smask ff:ff:ff:00:00:00
+
+
+access-list create 1400 name PERMIT
+access-list combined 1400 rule 1 permit logging disable
+
+
+access-list bind 1000 interface gigabitEthernet 1/0/25-28
+
+access-list bind 1001 interface gigabitEthernet 1/0/1-28
+
+
+access-list bind 1002 interface gigabitEthernet 1/0/1-24
+
+
+access-list bind 1003 interface gigabitEthernet 1/0/1-28
+
+access-list bind 1400 interface gigabitEthernet 1/0/1-28
+
+
+access-list action 1003 rule 1
+ qos-remark dot1p 5
+
+exit
+access-list action 1003 rule 2
+ qos-remark dot1p 5
+exit
+access-list action 1003 rule 3
+ qos-remark dot1p 5
+exit
+access-list action 1003 rule 4
+ qos-remark dot1p 5
+exit
+access-list action 1003 rule 5
+ qos-remark dot1p 5
+exit
+access-list action 1003 rule 6
+ qos-remark dot1p 5
+exit
+access-list action 1003 rule 7
+ qos-remark dot1p 5
+exit
+access-list action 1003 rule 8
+ qos-remark dot1p 5
+exit
+access-list action 1003 rule 9
+ qos-remark dot1p 5
+exit
+
+qos cos-map 0 0
+qos cos-map 1 1
+qos cos-map 2 2
+qos cos-map 3 3
+qos cos-map 4 4
+qos cos-map 5 5
+qos cos-map 6 6
+qos cos-map 7 7
+
+interface range gigabitEthernet 1/0/1-28
+ qos queue 0 mode wrr weight 1  
+ qos queue 1 mode wrr weight 2                    
+ qos queue 2 mode wrr weight 4                    
+ qos queue 3 mode wrr weight 8                    
+ qos queue 4 mode wrr weight 16                   
+ qos queue 5 mode sp 
+ qos queue 6 mode sp                               
+ qos queue 7 mode sp                               
+ qos trust mode dot1p
+exit
+
+ip dhcp filter
+
+interface range gigabitEthernet 1/0/1-24
+ ip dhcp filter
+exit
+
+ip dhcp l2relay
+ip dhcp l2relay vlan 601-624
+
+interface range gigabitEthernet 1/0/1-24
+ ip dhcp l2relay information option
+ ip dhcp l2relay information strategy replace
+exit
+
+snmp-server
+snmp-server community rjydjq17 read-only
+snmp-server community bugaga66 read-write
+snmp-server host 212.33.233.81 162 rjydjq17 smode v2c type trap
+snmp-server traps storm-control
+snmp-server traps ddm
+snmp-server traps spanning-tree topologychange
+snmp-server traps loopback-detection
+mac address-table notification global-status enable
+
+interface range gigabitEthernet 1/0/1-24
+ mac address-table notification
+ mac address-table notification new-mac-learned enable
+exit
+
+radius-server host 212.33.233.197 auth-port 2030 acct-port 2030 key  9rsrLWBnOJaA
+radius-server host 212.33.233.198 auth-port 2030 acct-port 2030 key  9rsrLWBnOJaA
+aaa group radius ERTH
+ server 212.33.233.197
+ server 212.33.233.198
+exit
+aaa authentication login default radius local
+
+jumbo-size 9216
+
+vlan 4024
+ name IPTV 
+exit 
+ip igmp snooping 
+ip igmp snooping vlan-config 4024
+
+mvr
+mvr mode dynamic
+mvr vlan 4024
+mvr group 225.0.55.0 256
+mvr group 225.0.56.0 128
+mvr group 225.0.59.0 64
+
+interface range gigabitEthernet 1/0/25-28
+  switchport general allowed vlan all
+ mvr
+ mvr type source
+exit
+
+interface range gigabitEthernet 1/0/1-24
+ mvr
+ mvr type receiver
+ ip igmp snooping max-groups 15
+ ip igmp snooping max-groups action replace
+exit
+
+interface range gigabitEthernet 1/0/1-24
+description PPPoE_Client
+ no switchport general allowed vlan 1
+exi
+interface range gigabitEthernet 1/0/25-28
+description TRUNK
+duplex auto
+switchport pvid 1
+end
+copy running-config startup-config
+!
