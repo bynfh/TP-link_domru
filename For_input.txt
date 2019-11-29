@@ -1,0 +1,7 @@
+Addres=Makarova-25-1pod-DSH
+IP-addres_switch=10.255.154.138
+Default_gateway=10.255.154.254
+IP-addres_mask=255.255.255.0
+VLAN_manage=99
+Other_vlan=500-800,3700-3799,96-98
+Number_switch=1

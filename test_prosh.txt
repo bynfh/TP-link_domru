@@ -1,14 +1,13 @@
 admin
 admin
 enable
-configure terminal 
+configure 
 interface vlan 1
 no ip address
-ip address 192.168.1.3 255.255.255.0
+ip address 10.255.154.138 255.255.255.0
 end
-firmware upgrade ip-address 192.168.1.2 filename T2600G-28TS_DC.bin
+copy running-config startup-config
+!
+firmware upgrade ip-address 10.255.154.254 filename T2600G-28TS_DC.bin
 y
 y
-
-
-

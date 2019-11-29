@@ -1,18 +1,20 @@
+admin
+admin
 en
 conf 
 service password-encryption 
 user name admin privilege admin secret Net52Sky
-hostname Revolutcii-50-2pod_DSH
-vlan 99,601-624,501-600,631-1588,96-98,3700-3799
+hostname Makarova-25-1pod_DSH
+vlan 599,601-624,501-600,631-1588,596-598,3700-3799
 exit
 no interface vlan 1
-interface vlan 99
+interface vlan 599
 description MGMT
-ip address 192.168.0.1 255.255.255.0
+ip address 10.255.154.138 255.255.255.0
 no ipv6 enable 
 no shutdown
 exit
-ip route 0.0.0.0 0.0.0.0 10.255.24.254
+ip route 0.0.0.0 0.0.0.0 10.255.154.254
 interface gi 1/0/1
 switchport general allowed vlan 601 untagged
 switchport pvid 601
@@ -117,7 +119,7 @@ user access-control ip-based 10.2.1.0 255.255.255.0
 user access-control ip-based 212.33.233.81 255.255.255.255
 user access-control ip-based 212.33.232.102 255.255.255.255
 user access-control ip-based 212.33.232.121 255.255.255.255
-user access-control ip-based 10.255.24.254 255.255.255.255
+user access-control ip-based 10.255.205.254 255.255.255.255
 user access-control ip-based 212.33.232.65 255.255.255.255
 no ip http server
 ip ssh server
@@ -138,7 +140,7 @@ exit
 lldp
 interface range gigabitEthernet 1/0/25-28
 lldp med-status
-lldp management-address 10.255.24.5
+lldp management-address 10.255.205.234
 exit
 interface range gigabitEthernet 1/0/1-24
 no lldp transmit
@@ -299,3 +301,4 @@ switchport pvid 1
 end
 copy running-config startup-config
 !
+copy startup-config tftp ip-address 10.255.154.254 filename Makarova-25-1pod_DSH.txt
