@@ -1,23 +1,42 @@
 import win32file
 import time
 import os
+import asyncio
+'''Класс для интерпритирования данных и отправки их через COM port(serial port) на коммутатор для его настройки.
+   Открываются два файла и с текстом для прошивки и с конфигом. Они правятся и отправляются на коммутатор.
+   Так же создаются два файла для отслеживания вводимой информации.
+   НА данном этапе закоменчена отправка на коммутатор, необходимо доделать,
+   чтобы данные корректно формировались для отправки'''
 class Tp_link_2600():
     input_ = {'Addres': '', 'Ip_addres': '',
               'Gateway': '', 'Mask': '',
-              'Vlan_manage': '', 'Other_vlan': '',
-              'Number_switch': ''}
+              'Vlan_manage': '', 'Number_switch': ''}
     Config = []
     Proshivka = []
+    convert_masks = {'1': '128.0.0.0', '2': '192.0.0.0', '3': '224.0.0.0',
+                     '4': '240.0.0.0', '5': '248.0.0.0', '6': '252.0.0.0',
+                     '7': '254.0.0.0', '8': '255.0.0.0', '9': '255.128.0.0',
+                     '10': '255.192.0.0', '11': '255.224.0.0', '12': '255.240.0.0',
+                     '13': '255.248.0.0	', '14': '255.252.0.0', '15': '255.254.0.0',
+                     '16': '255.255.0.0', '17': '255.255.128.0', '18': '255.255.192.0',
+                     '19': '255.255.224.0', '20': '255.255.240.0', '21': '255.255.248.0',
+                     '22': '255.255.252.0', '23': '255.255.254.0', '24': '255.255.255.0',
+                     '25': '255.255.255.128', '26': '255.255.255.192', '27': '255.255.255.224',
+                     '28': '255.255.255.240', '29': '255.255.255.248', '30': '255.255.255.252',
+                     '31': '255.255.255.254', '32': '255.255.255.255'}
 
     def __init__(self, Addres, Ip_addres, Gateway,
-                 Mask, Vlan_manege, Other_vlan, Number_switch):
-        Vlan = str(int(Vlan_manege) - 3) + '-' + str(int(Vlan_manege) - 1)
+                 Mask, Vlan_manege, Number_switch):
+
         self.input_['Addres'] = Addres
         self.input_['Ip_addres'] = Ip_addres
         self.input_['Gateway'] = Gateway
-        self.input_['Mask'] = Mask
+        if Mask in self.convert_masks:
+
+            self.input_['Mask'] = self.convert_masks[Mask]
+        else:
+            self.input_['Mask'] = Mask
         self.input_['Vlan_manage'] = Vlan_manege
-        self.input_['Other_vlan'] = '3700-3799 ' + Vlan
         self.input_['Number_switch'] = Number_switch
 
     def open_file(self):
@@ -38,7 +57,9 @@ class Tp_link_2600():
         name_file = self.input_['Addres'] + ' ' + self.input_['Ip_addres'] + '.txt'
         with open(name_file, 'w') as g:
             for key, value in self.input_.items():
+
                     g.write(key + '====' + value + '\n')
+
 
     def ping_in(self):
         proverka = 'not ping'
@@ -77,11 +98,15 @@ class Tp_link_2600():
             znach = 731
         for j in range(znach, znach + 24):
             spisok_fiz_vlan.append(j)
-
+        Vlan = str(int(self.input_['Vlan_manage']) - 3) + '-' + str(int(self.input_['Vlan_manage']) - 1)
+        fiz_vlan_begin = '500-' + str(spisok_fiz_vlan[0] - 1)
+        fiz_vlan_end = str(spisok_fiz_vlan[23] + 7) + '-' + '1000'
         config = self.Config
         config[6] = 'hostname ' + self.input_['Addres'] + '\n'
-        config[7] = 'vlan ' + self.input_['Other_vlan'] + ',' + self.input_['Vlan_manage'] + \
-                     ',' + str(spisok_fiz_vlan[0]) + '-' + str(spisok_fiz_vlan[-1]) + '\n'
+        config[7] = 'vlan ' + Vlan + ',' + self.input_['Vlan_manage']+ ',' + fiz_vlan_begin + ',' + \
+                     str(spisok_fiz_vlan[0]) + '-' + str(spisok_fiz_vlan[-1]) +\
+                    ',' + fiz_vlan_end + ',3700-3799' + '\n'
+
         config[10] = 'interface vlan ' + self.input_['Vlan_manage'] + '\n'
         config[12] = 'ip address ' + self.input_['Ip_addres'] + ' ' + self.input_['Mask'] + '\n'
         config[16] = 'ip route 0.0.0.0 0.0.0.0 ' + self.input_['Gateway'] + '\n'
@@ -173,10 +198,11 @@ class Tp_link_2600():
 
 
 
-        # Prosh = self.Proshivka
-        # start_time = time.time()
-        # print('=========')
-        #
+        Prosh = self.Proshivka
+        start_time = time.time()
+        print('=========')
+        time.sleep(10)
+
         # hFile = win32file.CreateFile('COM2', win32file.GENERIC_READ | win32file.GENERIC_WRITE, 0, None,
         #                              win32file.OPEN_EXISTING, 0, None)
         # print('=========')
@@ -214,5 +240,5 @@ class Tp_link_2600():
         # print('=========')
         #
         # win32file.CloseHandle(hFile)
-        # print('programm has been finished:{:.2f}'.format(time.time() - start_time))
+        print('programm has been finished:{:.2f}'.format(time.time() - start_time))
 
